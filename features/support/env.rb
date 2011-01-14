@@ -1,0 +1,20 @@
+require 'rspec/expectations'
+require 'rest_client'
+require 'uuid'
+require 'json'
+require 'base64'
+
+
+# "before all"
+# How do we make this path anchored at some sort of root, so that 'cucumber' doesn't have to be instantiated
+# relative to this path?
+config = YAML.load_file "features/config.yml"
+Before do
+  @config = config
+  @defaults = Defaults.new(config)
+  @uuid = UUID.new
+end
+
+# "after all"
+at_exit do
+end

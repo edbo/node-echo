@@ -4,7 +4,7 @@ class Defaults
     @valid_info = @config['valid_info']
   end
 
-  def get_valid_bus(channel)
+  def get_valid_channel(channel)
     @config['base_url'] + '/' + @config['backplane']['version'] + '/' + @valid_info['bus'] + '/channel/' + channel
   end
   

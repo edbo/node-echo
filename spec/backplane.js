@@ -60,7 +60,11 @@ describe('backplane', function(){
                 });
 
                 it('should use processPost for the data event',function(){
+                    expect(req.addListener).toHaveBeenCalledWith('data',backplane.processPost);
+                });
 
+                it('should use postEnd for the end event',function(){
+                    expect(req.addListener).toHaveBeenCalledWith('end',backplane.postEnd);
                 });
             });
 
@@ -136,8 +140,22 @@ describe('backplane', function(){
         });
     });
 
+    describe('processPost',function(){
+        var callback, req;
+
+        beforeEach(function(){
+            req = new MockRequest();
+            callback = backplane.processPost(req);
+        });
+
+        it('should return a callback function',function(){
+           expect(typeof callback).toEqual('function');
+        });
+
+    });
+
     describe("postEnd", function(){
-        var res, callback;
+        var res, callback, req;
 
         beforeEach(function(){
             res = new MockResponse();

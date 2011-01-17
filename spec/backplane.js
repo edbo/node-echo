@@ -149,7 +149,28 @@ describe('backplane', function(){
         });
 
         it('should return a callback function',function(){
-           expect(typeof callback).toEqual('function');
+            expect(typeof callback).toEqual('function');
+        });
+
+        describe("call callback once", function(){
+            beforeEach(function(){
+                callback('first_chunk');
+            });
+
+            it('should return the input string',function(){
+                expect(req.content).toEqual('first_chunk');
+            });
+
+            describe("call the callback twice", function(){
+                beforeEach(function(){
+                    callback(',second_chunk');
+                });
+
+                it("should concatenate the chunks", function(){
+                    expect(req.content).toEqual('first_chunk,second_chunk')
+                });
+            });
+
         });
 
     });

@@ -19,8 +19,22 @@ var authenticationHandler = function(username,password){
     return username === 'valid_bus' && password === 'valid_key';
 };
 
+var messageStore = {
+    valid_bus: {}
+    ,save: function(bus,channel,message){
+        console.log('bus:' + bus + " ,channel: " + channel + " ,message: " + message);
+        if(!messageStore.valid_bus[channel]) messageStore.valid_bus[channel] = new Array();
+        messageStore.valid_bus[channel].push(message);
+    }
+    ,getChannelMessages: function(channel,callback){
+       console.log('getChannel: ' + channel);
+       console.log(messageStore.valid_bus[channel]);
+       callback(messageStore.valid_bus[channel]);
+    }
+};
+
 //Setup the backplaneHandler
-var backplaneHandler = echo.backplaneHandler({ authHandler: authenticationHandler, decode64Handler: base64.decode });
+var backplaneHandler = echo.backplaneHandler({ authHandler: authenticationHandler, decode64Handler: base64.decode, messageStore: messageStore });
 
 var handler = function(req,res){
     //Catch exceptions to return appropriate responses

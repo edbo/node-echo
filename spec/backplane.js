@@ -375,8 +375,8 @@ describe('backplane', function(){
             beforeEach(function(){
                 spyOn(res,'writeHead');
                 spyOn(res,'end');
-                callback([{ message: { x: 1 }, channel_name: "valid_channel" }
-                    ,{ message: { x: 2 }, channel_name: "valid_channel" }]);
+                callback([{ "message": { "x": 1 }, "channel_name": "valid_channel" }
+                    ,{ "message": { "x": 2 }, "channel_name": "valid_channel" }]);
             });
 
             it("should write 200 and content type to head",function(){
@@ -384,8 +384,8 @@ describe('backplane', function(){
             });
 
             it("should call write end",function(){
-                expect(res.end).toHaveBeenCalledWith([{ message: { x: 1 }, channel_name: "valid_channel" }
-                    ,{ message: { x: 2 }, channel_name: "valid_channel" }]);
+                expect(res.end).toHaveBeenCalledWith('[{"message":{"x":1},"channel_name":"valid_channel"}' +
+                    ',{"message":{"x":2},"channel_name":"valid_channel"}]');
             });
         });
     });

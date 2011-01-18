@@ -5,7 +5,7 @@ class Defaults
   end
 
   def get_valid_channel(channel)
-    @config['base_url'] + '/' + @config['backplane']['version'] + '/' + @valid_info['bus'] + '/channel/' + channel
+    @config['base_url'] + '/' + @config['backplane']['version'] + '/bus/' + @valid_info['bus'] + '/channel/' + channel
   end
   
   def get_valid_token()

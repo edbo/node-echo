@@ -7,9 +7,13 @@ Feature: Backplane channel implementation (http://backplanespec.googlegroups.com
     Given a valid api key
     When I post a valid message to a random channel
     Then I should receive an HTTP Response code of "200"
-    And when I get messages from that channel
+    Then when I get messages from that channel
     Then I should receive an HTTP Response code of "200"
     And receive the same message back
+    Then post another valid message to the same channel
+    Then when I get messages from that channel
+    Then I should receive an HTTP Response code of "200"
+    And receive both message back
 
   Scenario: Use an invalid key
     Given an invalid api key

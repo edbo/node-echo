@@ -22,29 +22,17 @@ describe('backplane', function(){
         var callback;
 
         beforeEach(function(){
-            //callback = backplane.handler();
+            spyOn(backplane, 'mergeOptions');
+            backplane.handler({options: 'I am the options file'});
+
+            //callback = backplane.handler({});
         });
 
-        describe("options",function(){
-            beforeEach(function(){
-                origAuth = backplane.authHandler;
-                origDecoder = backplane.decode64Handler;
-                origMessageStore = backplane.messageStore;
-
-                backplane.handler({authHandler: 'authHandler', decode64Handler: 'decoder', messageStore: 'store'});
-            });
-
-            afterEach(function(){
-                backplane.authHandler = origAuth;
-                backplane.decode64Handler = origDecoder;
-                backplane.messageStore = origMessageStore;
-            });
-
-            it("should save the options", function(){
-                expect(backplane.authHandler).toEqual('authHandler');
-                expect(backplane.decode64Handler).toEqual('decoder');
-                expect(backplane.messageStore).toEqual('store');
-            });
+        it("should call the merge function before returning the callback",function(){
+            expect(backplane.mergeOptions)
+                    .toHaveBeenCalledWith(backplane
+                    ,['authHandler','decode64Handler','messageStore']
+                    ,{options: 'I am the options file'})
         });
 
 //        describe("channel",function(){

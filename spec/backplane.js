@@ -298,5 +298,73 @@ describe('backplane', function(){
                 expect(objectToSet.invalidOption3).toEqual(undefined);
             });
         });
+
+        describe("with object that contains an subObject with functions",function(){
+            beforeEach(function(){
+                objectToSet.sub1 = {
+                    subOption1: function(){ return 'sub1'; }
+                    ,subOption2: function(){ return 'sub2'; }
+                };
+                objectToSet.sub2 = {
+                    subOption3: function(){ return 'sub3'}
+                };
+                acceptable.push('sub1');
+                acceptable.push('sub2');
+            });
+
+            describe("merge with undefined object",function(){
+                beforeEach(function(){
+                    newOptions = {
+                        sub1: {}
+                        ,sub2: {}
+                    };
+                    backplane.mergeOptions(objectToSet,acceptable,newOptions);
+                });
+
+                it("should not overwrite default implementations",function(){
+                    expect(objectToSet.sub1.subOption1()).toEqual('sub1');
+                    expect(objectToSet.sub1.subOption2()).toEqual('sub2');
+                    expect(objectToSet.sub2.subOption3()).toEqual('sub3');
+                });
+            });
+
+            describe("merge with full sub object", function(){
+                beforeEach(function(){
+                    newOptions = {
+                        sub1: {
+                            subOption1: function(){ return 'newSub1'; }
+                            ,subOption2: function(){ return 'newSub2'; }
+                        }
+                        ,sub2: {
+                            subOption3: function(){ return 'newSub3'}
+                        }
+                    };
+                    backplane.mergeOptions(objectToSet,acceptable,newOptions);
+                });
+
+                it("should copy all the functions",function(){
+                    expect(objectToSet.sub1.subOption1()).toEqual('newSub1');
+                    expect(objectToSet.sub1.subOption2()).toEqual('newSub2');
+                    expect(objectToSet.sub2.subOption3()).toEqual('newSub3');
+                });
+            });
+
+            describe("merge with partial sub object",function(){
+                beforeEach(function(){
+                    newOptions = {
+                        sub1: {
+                            subOption1: function(){ return 'newSub1'; }
+                        }
+                    };
+                    backplane.mergeOptions(objectToSet,acceptable,newOptions);
+                });
+
+                it("should copy all the functions",function(){
+                    expect(objectToSet.sub1.subOption1()).toEqual('newSub1');
+                    expect(objectToSet.sub1.subOption2()).toEqual('sub2');
+                    expect(objectToSet.sub2.subOption3()).toEqual('sub3');
+                });
+            });
+        });
     });
 });

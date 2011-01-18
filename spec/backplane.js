@@ -24,8 +24,6 @@ describe('backplane', function(){
         beforeEach(function(){
             spyOn(backplane, 'mergeOptions');
             backplane.handler({options: 'I am the options file'});
-
-            //callback = backplane.handler({});
         });
 
         it("should call the merge function before returning the callback",function(){
@@ -35,47 +33,62 @@ describe('backplane', function(){
                     ,{options: 'I am the options file'})
         });
 
-//        describe("channel",function(){
-//            var handler, req, res;
-//
-//            beforeEach(function(){
-//                handler = backplane.handler({});
-//                req = new MockRequest();
-//                res = new MockResponse();
-//                spyOn(req,'addListener');
-//                spyOn(res,'writeHead');
-//                spyOn(res,'end');
-//            });
-//
-//            describe("POST request",function(){
-//                beforeEach(function(){
-//                    req.method = "POST";
-//                    spyOn(backplane,'validate').andReturn(true);
-//                    handler(req,res);
+        describe("channel",function(){
+            var handler, req, res;
+
+            beforeEach(function(){
+                handler = backplane.handler({});
+                req = new MockRequest();
+                res = new MockResponse();
+                spyOn(req,'addListener');
+                spyOn(res,'writeHead');
+                spyOn(res,'end');
+            });
+
+            describe("POST request",function(){
+                beforeEach(function(){
+                    req.method = "POST";
+                    req.url = '/v1/bus/valid_bus/channel/valid_channel';
+                    spyOn(backplane,'validate').andReturn(true);
+                    spyOn(backplane, 'processPost').andReturn('process_result');
+                    spyOn(backplane, 'postEnd').andReturn('end_result');
+                    handler(req,res);
+                });
+
+                it('should call the processPost to get the callback',function(){
+                    expect(backplane.processPost).toHaveBeenCalledWith(req);
+                });
+
+                it('should use processPost result the data event',function(){
+                    expect(req.addListener).toHaveBeenCalledWith('data','process_result');
+                });
+
+                it("should call the postEnd function to get the callback",function(){
+                    expect(backplane.postEnd).toHaveBeenCalledWith(req,res,'valid_bus','valid_channel');
+                });
+
+                it('should use postEnd for the end event',function(){
+                    expect(req.addListener).toHaveBeenCalledWith('end','end_result');
+                });
+            });
+
+            describe("GET request",function(){
+                beforeEach(function(){
+                    req.method = "GET";
+                    spyOn(backplane.messageStore,'getChannelMessages')
+                            .andCallFake(function(input){
+                        if(input === "valid_channel"){
+                            return [{ message: { x: 1 }, channel_name: "valid_channel" }
+                                ,{ message: { x: 2 }, channel_name: "valid_channel" }];
+                        }
+                    });
+                    handler(req,res);
+                });
+
+//                it("should call the messageStore function passing its getMessagesCallback",function(){
+//                    expect(backplane.messageStore.getChannelMessages).toHaveBeenCalledWith('valid_channel',backplane.getMessagesCallback)
 //                });
-//
-//                it('should use processPost for the data event',function(){
-//                    expect(req.addListener).toHaveBeenCalledWith('data',backplane.processPost);
-//                });
-//
-//                it('should use postEnd for the end event',function(){
-//                    expect(req.addListener).toHaveBeenCalledWith('end',backplane.postEnd);
-//                });
-//            });
-//
-//            describe("GET request",function(){
-//                beforeEach(function(){
-//                    req.method = "GET";
-//                    spyOn(backplane.messageStore,'getChannelMessages')
-//                            .andCallFake(function(input){
-//                        if(input === "valid_channel"){
-//                            return [{ message: { x: 1 }, channel_name: "valid_channel" }
-//                                ,{ message: { x: 2 }, channel_name: "valid_channel" }];
-//                        }
-//                    });
-//                    handler(req,res);
-//                });
-//
+
 //                it("should write 200 and content type to head",function(){
 //                    expect(res.writeHead).toHaveBeenCalledWith(200,{"Content-Type": "application/json"})
 //                });
@@ -84,8 +97,8 @@ describe('backplane', function(){
 //                    expect(res.end).toHaveBeenCalledWith([{ message: { x: 1 }, channel_name: "valid_channel" }
 //                        ,{ message: { x: 2 }, channel_name: "valid_channel" }]);
 //                });
-//            });
-//        });
+            });
+        });
     });
 
     describe('validate', function(){
@@ -355,4 +368,17 @@ describe('backplane', function(){
             });
         });
     });
+
+    describe("processChannelGet", function(){
+        var callback;
+
+        beforeEach(function(){
+            callback = backplane.processGetChannel(res,channel);
+        });
+
+        it("should return a callback", function(){
+    		expect(typeof callback).toEqual('function');
+        });
+    });
+
 });

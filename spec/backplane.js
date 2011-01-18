@@ -39,6 +39,7 @@ describe('backplane', function(){
             beforeEach(function(){
                 handler = backplane.handler({});
                 req = new MockRequest();
+                req.url = '/v1/bus/valid_bus/channel/valid_channel';
                 res = new MockResponse();
                 spyOn(req,'addListener');
                 spyOn(res,'writeHead');
@@ -48,7 +49,6 @@ describe('backplane', function(){
             describe("POST request",function(){
                 beforeEach(function(){
                     req.method = "POST";
-                    req.url = '/v1/bus/valid_bus/channel/valid_channel';
                     spyOn(backplane,'validate').andReturn(true);
                     spyOn(backplane, 'processPost').andReturn('process_result');
                     spyOn(backplane, 'postEnd').andReturn('end_result');
@@ -75,28 +75,18 @@ describe('backplane', function(){
             describe("GET request",function(){
                 beforeEach(function(){
                     req.method = "GET";
-                    spyOn(backplane.messageStore,'getChannelMessages')
-                            .andCallFake(function(input){
-                        if(input === "valid_channel"){
-                            return [{ message: { x: 1 }, channel_name: "valid_channel" }
-                                ,{ message: { x: 2 }, channel_name: "valid_channel" }];
-                        }
-                    });
+                    spyOn(backplane.messageStore,'getChannelMessages');
+                    spyOn(backplane, 'processGetChannel').andReturn('process_return');
                     handler(req,res);
                 });
 
-//                it("should call the messageStore function passing its getMessagesCallback",function(){
-//                    expect(backplane.messageStore.getChannelMessages).toHaveBeenCalledWith('valid_channel',backplane.getMessagesCallback)
-//                });
+                it("should call the processGetChannel",function(){
+                    expect(backplane.processGetChannel).toHaveBeenCalledWith(res);
+                });
 
-//                it("should write 200 and content type to head",function(){
-//                    expect(res.writeHead).toHaveBeenCalledWith(200,{"Content-Type": "application/json"})
-//                });
-//
-//                it("should call write end",function(){
-//                    expect(res.end).toHaveBeenCalledWith([{ message: { x: 1 }, channel_name: "valid_channel" }
-//                        ,{ message: { x: 2 }, channel_name: "valid_channel" }]);
-//                });
+                it("should call the messageStore function passing its getMessagesCallback",function(){
+                    expect(backplane.messageStore.getChannelMessages).toHaveBeenCalledWith('valid_channel','process_return');
+                });
             });
         });
     });
@@ -370,14 +360,33 @@ describe('backplane', function(){
     });
 
     describe("processChannelGet", function(){
-        var callback;
+        var callback,res;
 
         beforeEach(function(){
-            callback = backplane.processGetChannel(res,channel);
+            res = new MockResponse();
+            callback = backplane.processGetChannel(res);
         });
 
         it("should return a callback", function(){
-    		expect(typeof callback).toEqual('function');
+            expect(typeof callback).toEqual('function');
+        });
+
+        describe('call the callback function passing in the mock array of messages',function(){
+            beforeEach(function(){
+                spyOn(res,'writeHead');
+                spyOn(res,'end');
+                callback([{ message: { x: 1 }, channel_name: "valid_channel" }
+                    ,{ message: { x: 2 }, channel_name: "valid_channel" }]);
+            });
+
+            it("should write 200 and content type to head",function(){
+                expect(res.writeHead).toHaveBeenCalledWith(200,{"Content-Type": "application/json"})
+            });
+
+            it("should call write end",function(){
+                expect(res.end).toHaveBeenCalledWith([{ message: { x: 1 }, channel_name: "valid_channel" }
+                    ,{ message: { x: 2 }, channel_name: "valid_channel" }]);
+            });
         });
     });
 

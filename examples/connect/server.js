@@ -1,22 +1,32 @@
-var crypto = require('crypto'),
-    fs = require('fs'),
-    connect = require('connect');
+var connect = require('connect');
+var base64 = require('base64');
 
-var echo = require('echo'),
-    backplane = echo.backplane;
+var echo = require('echo');
 
 var port = 8001;
 
-var privateKey = fs.readFileSync('privatekey.pem').toString(),
-    certificate = fs.readFileSync('certificate.pem').toString();
+var authenticationHandler = function(username,password){
+    return username === 'valid_bus' && password === 'valid_key';
+};
 
-var credentials = crypto.createCredentials({key: privateKey, cert: certificate});
+var messageStore = {
+    valid_bus: {}
+    ,save: function(bus,channel,message){
+        console.log('bus:' + bus + " ,channel: " + channel + " ,message: " + message);
+        if(!messageStore.valid_bus[channel]) messageStore.valid_bus[channel] = new Array();
+        messageStore.valid_bus[channel].push(message);
+    }
+    ,getChannelMessages: function(channel,callback){
+       console.log('getChannel: ' + channel);
+       console.log(messageStore.valid_bus[channel]);
+       callback(messageStore.valid_bus[channel]);
+    }
+};
 
 var server = module.exports = connect.createServer(
     connect.logger(),
-    backplane.connect()
+    echo.backplaneConnect({ authHandler: authenticationHandler, decode64Handler: base64.decode, messageStore: messageStore })
 );
 
-server.setSecure(credentials);
 server.listen(port);
 console.log("Listening on port: " + port);

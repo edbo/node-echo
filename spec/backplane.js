@@ -17,13 +17,11 @@ MockResponse.prototype.end = function(){};
 describe('backplane', function(){
     var backplane = require('backplane.js');
     describe("handler", function(){
-        var origAuth, origDecoder, origMessageStore;
-
         var callback;
 
         beforeEach(function(){
             spyOn(backplane, 'mergeOptions');
-            backplane.handler({options: 'I am the options file'});
+            callback = backplane.handler({options: 'I am the options file'});
         });
 
         it("should call the merge function before returning the callback",function(){
@@ -33,11 +31,15 @@ describe('backplane', function(){
                     ,{options: 'I am the options file'})
         });
 
+        it("should return a callback",function(){
+            expect(typeof callback).toEqual('function');
+        });
+
         describe("channel",function(){
-            var handler, req, res;
+            var req, res;
 
             beforeEach(function(){
-                handler = backplane.handler({});
+                callback = backplane.handler({});
                 req = new MockRequest();
                 req.url = '/v1/bus/valid_bus/channel/valid_channel';
                 res = new MockResponse();
@@ -52,7 +54,7 @@ describe('backplane', function(){
                     spyOn(backplane,'validate').andReturn(true);
                     spyOn(backplane, 'processPost').andReturn('process_result');
                     spyOn(backplane, 'postEnd').andReturn('end_result');
-                    handler(req,res);
+                    callback(req,res);
                 });
 
                 it('should call the processPost to get the callback',function(){
@@ -77,7 +79,7 @@ describe('backplane', function(){
                     req.method = "GET";
                     spyOn(backplane.messageStore,'getChannelMessages');
                     spyOn(backplane, 'processGetChannel').andReturn('process_return');
-                    handler(req,res);
+                    callback(req,res);
                 });
 
                 it("should call the processGetChannel",function(){
@@ -87,6 +89,55 @@ describe('backplane', function(){
                 it("should call the messageStore function passing its getMessagesCallback",function(){
                     expect(backplane.messageStore.getChannelMessages).toHaveBeenCalledWith('valid_channel','process_return');
                 });
+            });
+        });
+    });
+
+    describe('connectHandler',function(){
+        var callback, req, res, nextWrapper, handlerWrapper;
+
+        beforeEach(function(){
+            req = new MockRequest();
+            res = new MockResponse();
+            nextWrapper = { next: function(){} };
+            handlerWrapper = { handler: function(){} };
+            spyOn(handlerWrapper,'handler');
+            spyOn(backplane, 'handler').andReturn(handlerWrapper.handler);
+            spyOn(nextWrapper,'next');
+            callback = backplane.connectHandler({options: 'I am the options file'});
+        });
+
+        it("should return a callback",function(){
+            expect(typeof callback).toEqual('function');
+        });
+
+        it("should get the normal handler callback",function(){
+            expect(backplane.handler).toHaveBeenCalledWith({options: 'I am the options file'});
+        });
+
+        describe('with matching url', function(){
+            beforeEach(function(){
+                req.url = '/v1/bus/some_bus/channel/some_channel';
+                callback(req,res,nextWrapper.next);
+            });
+
+            it("should not call next()",function(){
+                expect(nextWrapper.next).not.toHaveBeenCalled();
+            });
+
+            it("should call the normal handler callback",function(){
+                expect(handlerWrapper.handler).toHaveBeenCalledWith(req,res);
+            });
+        });
+
+        describe('with url it should ignore',function(){
+            beforeEach(function(){
+                req.url = '/v1/cus/some_bus/channel/some_channel';
+                callback(req,res,nextWrapper.next);
+            });
+
+            it("should call next()",function(){
+                expect(nextWrapper.next).toHaveBeenCalled();
             });
         });
     });
@@ -385,7 +436,7 @@ describe('backplane', function(){
 
             it("should call write end",function(){
                 expect(res.end).toHaveBeenCalledWith('[{"message":{"x":1},"channel_name":"valid_channel"}' +
-                    ',{"message":{"x":2},"channel_name":"valid_channel"}]');
+                        ',{"message":{"x":2},"channel_name":"valid_channel"}]');
             });
         });
     });

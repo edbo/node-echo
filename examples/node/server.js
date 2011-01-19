@@ -1,7 +1,4 @@
-var crypto = require('crypto'),
-        fs = require('fs'),
-        http = require('http');
-
+var http = require('http');
 var base64 = require('base64');
 
 var sys = require('sys');
@@ -9,11 +6,6 @@ var sys = require('sys');
 var echo = require('echo');
 
 var port = 8001;
-
-var privateKey = fs.readFileSync('privatekey.pem').toString(),
-        certificate = fs.readFileSync('certificate.pem').toString();
-
-var credentials = crypto.createCredentials({key: privateKey, cert: certificate});
 
 var authenticationHandler = function(username,password){
     return username === 'valid_bus' && password === 'valid_key';
@@ -52,7 +44,6 @@ var handler = function(req,res){
 };
 
 var server = http.createServer();
-server.setSecure(credentials);
 server.addListener("request", handler);
 server.listen(port);
 console.log("Listening on port: " + port);

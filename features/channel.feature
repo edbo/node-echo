@@ -15,6 +15,13 @@ Feature: Backplane channel implementation (http://backplanespec.googlegroups.com
     Then I should receive an HTTP Response code of "200"
     And receive both message back
 
+  Scenario: Get messages over jsonp
+    Given a valid api key
+    And two messages already in the channel
+    When I get the messages from the channel with a callback set
+    Then I should receive an HTTP Response code of "200"
+    And I should receive the messages as a jsonp response
+
   Scenario: Use an invalid key
     Given an invalid api key
     When I post a valid message to a random channel

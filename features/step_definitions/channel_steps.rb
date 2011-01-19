@@ -31,3 +31,17 @@ end
 Then /^receive both message back$/ do
   Then "receive the same message back"
 end
+
+Given /^two messages already in the channel$/ do
+  When "I post a valid message to a random channel"
+  Then "post another valid message to the same channel"
+end
+
+When /^I get the messages from the channel with a callback set$/ do
+  @callback_id = rand(999999999)
+  @response = RestClient.get @current_channel_url, {:accept => :javascript, :params => { :callback => @callback_id }}
+end
+
+And /^I should receive the messages as a jsonp response$/ do
+  puts @response
+end

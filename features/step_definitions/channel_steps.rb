@@ -28,7 +28,7 @@ Then /^post another valid message to the same channel$/ do
   end
 end
 
-Then /^receive both message back$/ do
+Then /^receive both messages back$/ do
   Then "receive the same message back"
 end
 
@@ -44,4 +44,15 @@ end
 
 And /^I should receive the messages as a jsonp response$/ do
   puts @response
+end
+
+When /^I get an empty channel$/ do
+  @expected_response = Array.new
+  @current_channel = @uuid.generate
+  @current_channel_url = @defaults.get_valid_channel(@current_channel)
+  @response = RestClient.get @current_channel_url, {:accept => :json}
+end
+
+And /^I should receive an empty array$/ do
+  Then "receive the same message back"
 end

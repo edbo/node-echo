@@ -3,6 +3,12 @@ Feature: Backplane channel implementation (http://backplanespec.googlegroups.com
   As a javascript widget server
   I want to securely post messages and anonymously consume messages on a randomly generated channel
 
+  Scenario: Get an empty channel
+    Given a valid api key
+    When I get an empty channel
+    Then I should receive an HTTP Response code of "200"
+    And I should receive an empty array
+
   Scenario: Post a message
     Given a valid api key
     When I post a valid message to a random channel
@@ -13,7 +19,7 @@ Feature: Backplane channel implementation (http://backplanespec.googlegroups.com
     Then post another valid message to the same channel
     Then when I get messages from that channel
     Then I should receive an HTTP Response code of "200"
-    And receive both message back
+    And receive both messages back
 
   Scenario: Get messages over jsonp
     Given a valid api key

@@ -13,15 +13,19 @@ var authenticationHandler = function(username,password){
 
 var messageStore = {
     valid_bus: {}
+    ,checkChannel: function(channel){
+        if(!messageStore.valid_bus[channel]) messageStore.valid_bus[channel] = [];
+    }
     ,save: function(bus,channel,message){
         console.log('bus:' + bus + " ,channel: " + channel + " ,message: " + message);
-        if(!messageStore.valid_bus[channel]) messageStore.valid_bus[channel] = new Array();
+        messageStore.checkChannel(channel);
         messageStore.valid_bus[channel].push(message);
     }
     ,getChannelMessages: function(channel,callback){
-       console.log('getChannel: ' + channel);
-       console.log(messageStore.valid_bus[channel]);
-       callback(messageStore.valid_bus[channel]);
+        console.log('getChannel: ' + channel);
+        console.log(messageStore.valid_bus[channel]);
+        messageStore.checkChannel(channel);
+        callback(messageStore.valid_bus[channel]);
     }
 };
 

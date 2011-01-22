@@ -13,23 +13,23 @@ Feature: Backplane channel implementation (http://backplanespec.googlegroups.com
     Given a valid api key
     When I post a valid message to a random channel
     Then I should receive an HTTP Response code of "200"
-    Then when I get messages from that channel
-    Then I should receive an HTTP Response code of "200"
+    When I get messages from that channel
     And receive the same message back
-    Then post another valid message to the same channel
-    Then when I get messages from that channel
+    When I post another valid message to the same channel
+    Then I should receive an HTTP Response code of "200"
+    When I get messages from that channel
     Then I should receive an HTTP Response code of "200"
     And receive both messages back
 
-  Scenario: Get messages over jsonp
+  Scenario: Retrieve messages from multiple channels
     Given a valid api key
-    And two messages already in the channel
-    When I get the messages from the channel with a callback set
-    Then I should receive an HTTP Response code of "200"
-    And I should receive the messages as a jsonp response
+    When I post a valid message to a random channel
+    And I post a valid message to a random channel
+    When I get messages from the bus
+    And receive both messages back
 
   Scenario: Use an invalid key
     Given an invalid api key
     When I post a valid message to a random channel
     Then I should receive an HTTP Response code of "401"
-    And the message "Wrong username and/or password."
+    And  a "401", "Unauthorized" json error object with the message "Wrong username and/or password."

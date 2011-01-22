@@ -35,6 +35,37 @@ describe('backplane', function(){
             expect(typeof callback).toEqual('function');
         });
 
+        describe("bus",function(){
+            var req, res;
+
+            beforeEach(function(){
+                callback = backplane.handler({});
+                req = new MockRequest();
+                req.url = '/v1/bus/valid_bus';
+                res = new MockResponse();
+                spyOn(req,'addListener');
+                spyOn(res,'writeHead');
+                spyOn(res,'end');
+            });
+
+            describe("GET request",function(){
+                beforeEach(function(){
+                    req.method = "GET";
+                    spyOn(backplane.messageStore,'getBusMessages');
+                    spyOn(backplane, 'processGetBus').andReturn('process_return');
+                    callback(req,res);
+                });
+
+                it("should call the processGetChannel",function(){
+                    expect(backplane.processGetBus).toHaveBeenCalledWith(res);
+                });
+
+                it("should call the messageStore function passing its getMessagesCallback",function(){
+                    expect(backplane.messageStore.getBusMessages).toHaveBeenCalledWith('valid_bus','process_return');
+                });
+            });
+        });
+
         describe("channel",function(){
             var req, res;
 
@@ -87,7 +118,7 @@ describe('backplane', function(){
                 });
 
                 it("should call the messageStore function passing its getMessagesCallback",function(){
-                    expect(backplane.messageStore.getChannelMessages).toHaveBeenCalledWith('valid_channel','process_return');
+                    expect(backplane.messageStore.getChannelMessages).toHaveBeenCalledWith('valid_bus','valid_channel','process_return');
                 });
             });
         });
@@ -441,4 +472,35 @@ describe('backplane', function(){
         });
     });
 
+
+    describe("processGetBus", function(){
+        var callback,res;
+
+        beforeEach(function(){
+            res = new MockResponse();
+            callback = backplane.processGetBus(res);
+        });
+
+        it("should return a callback", function(){
+            expect(typeof callback).toEqual('function');
+        });
+
+        describe('call the callback function passing in the mock array of messages',function(){
+            beforeEach(function(){
+                spyOn(res,'writeHead');
+                spyOn(res,'end');
+                callback([{ "message": { "x": 1 }, "channel_name": "valid_channel" }
+                    ,{ "message": { "x": 2 }, "channel_name": "another_channel" }]);
+            });
+
+            it("should write 200 and content type to head",function(){
+                expect(res.writeHead).toHaveBeenCalledWith(200,{"Content-Type": "application/json"})
+            });
+
+            it("should call write end",function(){
+                expect(res.end).toHaveBeenCalledWith('[{"message":{"x":1},"channel_name":"valid_channel"}' +
+                        ',{"message":{"x":2},"channel_name":"another_channel"}]');
+            });
+        });
+    });
 });

@@ -10,6 +10,7 @@ Then /^I should receive an HTTP Response code of "(\d+)"$/ do |expected_response
   @response.code.to_s().should == expected_response
 end
 
-And /^the message "([^"]*)"$/ do |expected_message|
-  @response.message.to_s().should == expected_message
+Then /^a "(\d+)", "([^"]*)" json error object with the message "([^"]*)"$/ do |arg1, arg2, arg3|
+  @expected_response = { :error => { :code => arg1, :type => arg2, :message => arg3} }
+  @response.to_json.should == @expected_response
 end

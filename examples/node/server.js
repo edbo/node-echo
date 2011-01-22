@@ -21,11 +21,18 @@ var messageStore = {
         messageStore.checkChannel(channel);
         messageStore.valid_bus[channel].push(message);
     }
-    ,getChannelMessages: function(channel,callback){
+    ,getChannelMessages: function(bus, channel,callback){
         console.log('getChannel: ' + channel);
         console.log(messageStore.valid_bus[channel]);
         messageStore.checkChannel(channel);
         callback(messageStore.valid_bus[channel]);
+    }
+    ,getBusMessages: function(bus,callback){
+        var messages = [];
+        for(var channel in messageStore.valid_bus){
+            messages = messages.concat(channel);
+        }
+        callback(messages);
     }
 };
 

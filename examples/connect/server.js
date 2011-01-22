@@ -1,4 +1,6 @@
-var connect = require('connect');
+var connect = require('connect'),
+    jsonp = require('connect-jsonp');
+
 var base64 = require('base64');
 
 var echo = require('echo');
@@ -29,6 +31,7 @@ var messageStore = {
 
 var server = module.exports = connect.createServer(
     connect.logger(),
+
     echo.backplaneConnect({ authHandler: authenticationHandler, decode64Handler: base64.decode, messageStore: messageStore })
 );
 

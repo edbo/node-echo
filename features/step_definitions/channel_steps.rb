@@ -1,8 +1,14 @@
 When /^I post a valid message to a random channel$/ do
-  @current_channel = @uuid.generate
+  @current_channel = rand(9999999999999).to_s
   @current_channel_url = @defaults.get_valid_channel(@current_channel)
   message = { :message => { 'x' => 1 }, :channel_name => @current_channel }.to_json
-  @expected_response = Array.new.push(message)
+
+  if(!defined? @expected_response)
+    @expected_response = Array.new
+  end
+
+  @expected_response.push(message)
+
   begin
     @response = RestClient.post @current_channel_url, message, :Authentication => @defaults.get_valid_auth_header(), :content_type => :json
   rescue => e
@@ -10,7 +16,7 @@ When /^I post a valid message to a random channel$/ do
   end
 end
 
-Then /^when I get messages from that channel$/ do
+When /^I get messages from that channel$/ do
   @response = RestClient.get @current_channel_url, {:accept => :json}
 end
 
@@ -18,7 +24,7 @@ Then /^receive the same message back$/ do
   @response.should == @expected_response.to_json
 end
 
-Then /^post another valid message to the same channel$/ do
+When /^I post another valid message to the same channel$/ do
   message = { :message => { 'x' => 2 }, :channel_name => @current_channel }.to_json
   @expected_response.push(message)
   begin
@@ -32,27 +38,17 @@ Then /^receive both messages back$/ do
   Then "receive the same message back"
 end
 
-Given /^two messages already in the channel$/ do
-  When "I post a valid message to a random channel"
-  Then "post another valid message to the same channel"
-end
-
-When /^I get the messages from the channel with a callback set$/ do
-  @callback_id = rand(999999999)
-  @response = RestClient.get @current_channel_url, {:accept => :javascript, :params => { :callback => @callback_id }}
-end
-
-And /^I should receive the messages as a jsonp response$/ do
-  puts @response
-end
-
 When /^I get an empty channel$/ do
   @expected_response = Array.new
-  @current_channel = @uuid.generate
+  @current_channel = rand(9999999999999).to_s
   @current_channel_url = @defaults.get_valid_channel(@current_channel)
   @response = RestClient.get @current_channel_url, {:accept => :json}
 end
 
 And /^I should receive an empty array$/ do
   Then "receive the same message back"
+end
+
+When /^I get messages from the bus/ do
+  @response = RestClient.get @defaults.get_valid_bus, {:accept => :json}
 end

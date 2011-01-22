@@ -1,6 +1,5 @@
 require 'rspec/expectations'
 require 'rest_client'
-require 'uuid'
 require 'json'
 require 'base64'
 
@@ -12,7 +11,6 @@ config = YAML.load_file "features/config.yml"
 Before do
   @config = config
   @defaults = Defaults.new(config)
-  @uuid = UUID.new
 end
 
 # "after all"

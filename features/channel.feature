@@ -26,7 +26,7 @@ Feature: Backplane channel implementation (http://backplanespec.googlegroups.com
     When I post a valid message to a random channel
     And I post a valid message to a random channel
     When I get messages from the bus
-    And receive both messages back
+    And receive both messages back from both channels
 
   Scenario: Use an invalid key
     Given an invalid api key

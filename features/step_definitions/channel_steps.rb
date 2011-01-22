@@ -52,3 +52,10 @@ end
 When /^I get messages from the bus/ do
   @response = RestClient.get @defaults.get_valid_bus, {:accept => :json}
 end
+
+And /^receive both messages back from both channels$/ do
+  response = JSON.parse(@response)
+  @expected_response.each do |item|
+    response.should be_include(item)
+  end
+end

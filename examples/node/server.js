@@ -30,7 +30,7 @@ var messageStore = {
     ,getBusMessages: function(bus,callback){
         var messages = [];
         for(var channel in messageStore.valid_bus){
-            messages = messages.concat(channel);
+            messages = messages.concat(messageStore.valid_bus[channel]);
         }
         callback(messages);
     }

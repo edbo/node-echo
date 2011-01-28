@@ -1,6 +1,7 @@
 describe("backplane messages", function(){
-    var Message = require('backplaneMessages.js').Message;
-    var LoginMessage = require('backplaneMessages.js').LoginMessage;
+    var backplaneMessages = require('backplane/backplaneMessages.js');
+    var Message = backplaneMessages.Message;
+    var LoginMessage = backplaneMessages.LoginMessage;
 
     describe("Message base",function(){
         var message;

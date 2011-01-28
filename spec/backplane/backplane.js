@@ -1,4 +1,5 @@
 var sys = require('sys');
+var utils = require('utils.js');
 
 var MockRequest = function(encoded){
     this.headers = {
@@ -14,18 +15,19 @@ var MockResponse = function(){
 MockResponse.prototype.writeHead = function(){};
 MockResponse.prototype.end = function(){};
 
+
 describe('backplane', function(){
-    var backplane = require('backplane.js');
+    var backplane = require('backplane/backplane.js');
     describe("handler", function(){
         var callback;
 
         beforeEach(function(){
-            spyOn(backplane, 'mergeOptions');
+            spyOn(utils, 'mergeOptions');
             callback = backplane.handler({options: 'I am the options file'});
         });
 
         it("should call the merge function before returning the callback",function(){
-            expect(backplane.mergeOptions)
+            expect(utils.mergeOptions)
                     .toHaveBeenCalledWith(backplane
                     ,['authHandler','decode64Handler','messageStore']
                     ,{options: 'I am the options file'})
@@ -296,147 +298,6 @@ describe('backplane', function(){
 
             it('should save new message to messageStore',function(){
                 expect(backplane.messageStore.save).toHaveBeenCalledWith('valid_bus','valid_channel','valid_message');
-            });
-        });
-    });
-
-    describe("setOptions", function(){
-        var objectToSet, acceptable, newOptions,result;
-
-        beforeEach(function(){
-            objectToSet = {
-                option1: function() { return 'default1'; }
-                ,option2: function(){ return 'default2'; }
-            };
-            acceptable = [ 'option1', 'option2' ];
-        });
-
-        describe("with undefined",function(){
-            beforeEach(function(){
-                newOptions = undefined;
-                backplane.mergeOptions(objectToSet, acceptable, newOptions);
-            });
-
-            it("should leave original object if newOptions is undefined", function(acceptableOptions,newOptions){
-                expect(objectToSet.option1()).toEqual('default1');
-                expect(objectToSet.option2()).toEqual('default2');
-            });
-        });
-
-        describe("with null",function(){
-            beforeEach(function(){
-                newOptions = null;
-                backplane.mergeOptions(objectToSet, acceptable, newOptions);
-            });
-
-            it("should leave original object if newOptions is undefined", function(acceptableOptions,newOptions){
-                expect(objectToSet.option1()).toEqual('default1');
-                expect(objectToSet.option2()).toEqual('default2');
-            });
-        });
-
-        describe("with one acceptable override",function(){
-            beforeEach(function(){
-                newOptions = {
-                    option1: function(){ return 'new1'; }
-                };
-                backplane.mergeOptions(objectToSet,acceptable,newOptions);
-            });
-
-            it('should overwrite option',function(){
-                expect(objectToSet.option1()).toEqual('new1');
-            });
-
-            it('should not overwrite the other option',function(){
-                expect(objectToSet.option2()).toEqual('default2');
-            });
-        });
-
-        describe("with two acceptable and one unacceptable function options", function(){
-            beforeEach(function(){
-                newOptions = {
-                    option1: function(){ return 'new1'; }
-                    ,option2: function(){ return 'new2'; }
-                    ,invalidOption3: function() { return 'new3'; }
-                };
-                backplane.mergeOptions(objectToSet,acceptable,newOptions);
-            });
-
-            it("should set the acceptable options", function(){
-                expect(objectToSet.option1()).toEqual('new1');
-                expect(objectToSet.option2()).toEqual('new2');
-            });
-
-            it("should ignore the unacceptable option",function(){
-                expect(objectToSet.invalidOption3).toEqual(undefined);
-            });
-        });
-
-        describe("with object that contains an subObject with functions",function(){
-            beforeEach(function(){
-                objectToSet.sub1 = {
-                    subOption1: function(){ return 'sub1'; }
-                    ,subOption2: function(){ return 'sub2'; }
-                };
-                objectToSet.sub2 = {
-                    subOption3: function(){ return 'sub3'}
-                };
-                acceptable.push('sub1');
-                acceptable.push('sub2');
-            });
-
-            describe("merge with undefined object",function(){
-                beforeEach(function(){
-                    newOptions = {
-                        sub1: {}
-                        ,sub2: {}
-                    };
-                    backplane.mergeOptions(objectToSet,acceptable,newOptions);
-                });
-
-                it("should not overwrite default implementations",function(){
-                    expect(objectToSet.sub1.subOption1()).toEqual('sub1');
-                    expect(objectToSet.sub1.subOption2()).toEqual('sub2');
-                    expect(objectToSet.sub2.subOption3()).toEqual('sub3');
-                });
-            });
-
-            describe("merge with full sub object", function(){
-                beforeEach(function(){
-                    newOptions = {
-                        sub1: {
-                            subOption1: function(){ return 'newSub1'; }
-                            ,subOption2: function(){ return 'newSub2'; }
-                        }
-                        ,sub2: {
-                            subOption3: function(){ return 'newSub3'}
-                        }
-                    };
-                    backplane.mergeOptions(objectToSet,acceptable,newOptions);
-                });
-
-                it("should copy all the functions",function(){
-                    expect(objectToSet.sub1.subOption1()).toEqual('newSub1');
-                    expect(objectToSet.sub1.subOption2()).toEqual('newSub2');
-                    expect(objectToSet.sub2.subOption3()).toEqual('newSub3');
-                });
-            });
-
-            describe("merge with partial sub object",function(){
-                beforeEach(function(){
-                    newOptions = {
-                        sub1: {
-                            subOption1: function(){ return 'newSub1'; }
-                        }
-                    };
-                    backplane.mergeOptions(objectToSet,acceptable,newOptions);
-                });
-
-                it("should copy all the functions",function(){
-                    expect(objectToSet.sub1.subOption1()).toEqual('newSub1');
-                    expect(objectToSet.sub1.subOption2()).toEqual('sub2');
-                    expect(objectToSet.sub2.subOption3()).toEqual('sub3');
-                });
             });
         });
     });

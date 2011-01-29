@@ -1,4 +1,5 @@
 var sys = require('sys');
+var fs = require('fs');
 
 describe("echo library", function(){
     var echo = require('echo/echo.js');
@@ -14,7 +15,7 @@ describe("echo library", function(){
             });
 
             it("should log the response", function(){
-               expect(console.log).toHaveBeenCalledWith("Response");
+                expect(console.log).toHaveBeenCalledWith("Response");
             });
         });
 
@@ -25,9 +26,41 @@ describe("echo library", function(){
             });
 
             it("should log the response", function(){
-               expect(sys.inspect).toHaveBeenCalledWith({ errorObject: "error value" });
-               expect(console.log).toHaveBeenCalledWith("inspected error");
+                expect(sys.inspect).toHaveBeenCalledWith({ errorObject: "error value" });
+                expect(console.log).toHaveBeenCalledWith("inspected error");
             });
+        });
+    });
+
+    describe("renderTemplate function", function(){
+        beforeEach(function(){
+            spyOn(fs,'readFile').andReturn('template');
+            spyOn(echo,'getFileCallback').andReturn('callback');
+            echo.renderTemplate();
+        });
+
+        it("should pass the filename to the getFileCallback",function(){
+            expect(echo.getFileCallback).toHaveBeenCalledWith('templates/template.xml');
+        });
+
+        it("should load the template file",function(){
+            expect(fs.readFile).toHaveBeenCalledWith('templates/template.xml','callback');
+        });
+
+        describe("cache",function(){
+            beforeEach(function(){
+                echo.renderTemplate();
+            });
+
+            it("should load the file",function(){
+                expect(fs.readFile).not.toHaveBeenCalledWith('templates/template.xml','callback');
+            });
+        });
+    });
+    
+    describe("getFileCallback", function(){
+        it("should return a callback", function(){
+            expect(echo.getFileCallback)
         });
     });
 });

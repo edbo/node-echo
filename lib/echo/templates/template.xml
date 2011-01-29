@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xml:lang="en-US" xmlns="http://www.w3.org/2005/Atom" xmlns:activity="http://activitystrea.ms/spec/1.0/" xmlns:thr="http://purl.org/syndication/thread/1.0" xmlns:media="http://purl.org/syndication/atommedia">
+  <id>http://js-kit.com/atom/example.com</id>
+  <generator uri="http://js-kit.com/">JS-Kit.com Syndication</generator>
+  <title>submit</title>
+  <link rel="alternate" href="http://js-kit.com/html/example.com" type="text/html"/>
+  <link rel="self" href="http://js-kit.com/atom/example.com" type="application/atom+xml"/>
+  <updated>2009-11-27T17:03:21+00:00</updated>
+  <icon>http://js-kit.com/favicon.ico</icon>
+  <logo>http://js-kit.com/images/site/logo8-js-kit.png</logo>
+  <entry>
+    <id>guid</id>
+    <title type="text">Title title</title>
+    <published>2010-10-19T00:49:59.000Z</published>
+    <author>
+      <name>Author name</name>
+      <uri>http://example.com/</uri>
+      <email>test@example.com</email>
+    </author>
+    <activity:verb>http://activitystrea.ms/schema/1.0/post</activity:verb>
+    <activity:actor>
+      <activity:object-type>http://activitystrea.ms/schema/1.0/person</activity:object-type>
+      <id>http://www.mashable.com</id>
+      <name>Samuel</name>
+      <link href="/http://cdn.mashable.com/wp-content/authors/about/samuel-axon.jpg" rel="avatar" type="image/jpeg" />
+    </activity:actor>
+    <activity:object>
+      <activity:object-type>http://activitystrea.ms/schema/1.0/article</activity:object-type>
+      <title type="text">Object Title</title>
+      <summary type="text">Object Summary</summary>
+      <content type="text">Object Content</content>
+      <link rel="alternate" type="text/html" href="http://echo.butter.com.hk/1"/>
+      <id>http://echo.butter.com.hk/3</id>
+    </activity:object>
+    <activity:target>
+      <activity:object-type>http://activitystrea.ms/schema/1.0/article</activity:object-type>
+      <id>http://echo.butter.com.hk/1/2010/01/28/</id>
+    </activity:target>
+  </entry>
+</feed>

@@ -1,6 +1,7 @@
 var utils = require('utils.js');
+var sha1 = require('echo/sha1.js');
 
-var apiUrl = 'https://api.echoenabled.com/v1/';
+var apiHost = 'api.js-kit.com';
 
 describe("EchoConnector Class", function(){
     var EchoConnector = require('echo/EchoConnector.js');
@@ -10,15 +11,11 @@ describe("EchoConnector Class", function(){
 
         beforeEach(function(){
             spyOn(utils,'mergeOptions');
-            echoConn = new EchoConnector({consumerKey: "I am a key"});
-        });
-
-        it("should call mergeOptions", function(){
-            expect(utils.mergeOptions).toHaveBeenCalledWith(echoConn,['oAuthHandler'],{consumerKey: "I am a key"});
+            echoConn = new EchoConnector({consumerKey: "I am a key",consumerSecret: "I am a secret"});
         });
 
         it("should set apiUrl to a default value", function(){
-            expect(echoConn.apiUrl).toEqual(apiUrl);
+            expect(echoConn.apiHost).toEqual(apiHost);
         });
 
         it("should set consumerKey to the passed value",function(){
@@ -28,15 +25,39 @@ describe("EchoConnector Class", function(){
         describe("submit function",function(){
             beforeEach(function(){
                 echoConn.consumerKey = "my key";
-                echoConn.responseHandler = function(){};
-                spyOn(echoConn,'oAuthHandler');
+                spyOn(echoConn,'post');
                 echoConn.submit("I am data");
             });
 
-            it("should send the data using the oAuthHandler",function(){
-                expect(echoConn.oAuthHandler).toHaveBeenCalledWith(apiUrl + 'submit', "my key","","I am data",echoConn.responseHandler);
+            it("should call the send request function",function(){
+                expect(echoConn.post).toHaveBeenCalled();
             });
         });
+
+        describe("usersUpdate", function(){
+            beforeEach(function(){
+                echoConn.consumerKey = "my key";
+                echoConn.usersUpdate("http://user","subject ","content, otherContent","I am data");
+            });
+
+            it("should send the data using the oAuthHandler", function(){
+                //expect(echoConn.oAuthHandler.post).toHaveBeenCalledWith(apiUrl + 'users/update?id=http%3A%2F%2Fuser&subject=subject%20&content=content%2C%20otherContent', "my key","","I am data",echoConn.responseHandler)
+            });
+        });
+
+        describe("post function",function(){
+            beforeEach(function(){
+                echoConn.consumerKey = "consumer key";
+                echoConn.consumerSecret = "secret";
+                spyOn(sha1,'signRequest');
+                echoConn.post("url","I am data");
+            });
+
+            it("should get the signed string from the sha1 signRequest function",function(){
+                expect(sha1.signRequest).toHaveBeenCalledWith("POST","url","consumer key","secret","I am data");
+            });
+        });
+
     });
 
     describe("constructor with no options", function(){
@@ -52,7 +73,7 @@ describe("EchoConnector Class", function(){
         });
 
         it("should throw and exception", function(){
-   		    expect(excp).toBeDefined();
+            expect(excp).toBeDefined();
             expect(excp.name).toEqual("Echo: Option not set exception");
             expect(excp.message).toEqual("EchoConnector requires the consumerKey option to be defined");
         });
@@ -64,7 +85,7 @@ describe("EchoConnector Class", function(){
 
         beforeEach(function(){
             try{
-                new EchoConnector('I am the options');
+                new EchoConnector({consumerSecret: "I am a secret"});
             }
             catch(e){
                 excp = e;
@@ -72,7 +93,26 @@ describe("EchoConnector Class", function(){
         });
 
         it("should throw and exception", function(){
-   		    expect(excp).toBeDefined();
+            expect(excp).toBeDefined();
+            expect(excp.name).toEqual("Echo: Option not set exception");
+            expect(excp.message).toEqual("EchoConnector requires the consumerKey option to be defined");
+        });
+    });
+
+    describe("constructor missing secret", function(){
+        var excp;
+
+        beforeEach(function(){
+            try{
+                new EchoConnector({consumerKey: "I am a key"});
+            }
+            catch(e){
+                excp = e;
+            }
+        });
+
+        it("should throw and exception", function(){
+            expect(excp).toBeDefined();
             expect(excp.name).toEqual("Echo: Option not set exception");
             expect(excp.message).toEqual("EchoConnector requires the consumerKey option to be defined");
         });

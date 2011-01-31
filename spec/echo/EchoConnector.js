@@ -54,7 +54,7 @@ describe("EchoConnector Class", function(){
             });
 
             it("should get the signed string from the sha1 signRequest function",function(){
-                expect(sha1.signRequest).toHaveBeenCalledWith("POST","url","consumer key","secret","I am data");
+                expect(sha1.signRequest).toHaveBeenCalledWith("POST","http://" + apiHost + "url","consumer key","secret","I am data");
             });
         });
 

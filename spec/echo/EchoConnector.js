@@ -26,7 +26,7 @@ describe("EchoConnector Class", function(){
             beforeEach(function(){
                 echoConn.consumerKey = "my key";
                 spyOn(echoConn,'post');
-                echoConn.submit("I am data");
+                echoConn.submitComment("I am data");
             });
 
             it("should call the send request function",function(){

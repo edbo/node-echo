@@ -1,7 +1,7 @@
 {
     "name": "echo",
     "description": "Echo library for node",
-    "version": "0.1.8",
+    "version": "0.1.9",
     "author": "TikiBooth Limited",
     "contributors": [
         { "name": "Ed Bosher", "email": "ed@butter.com.hk" }

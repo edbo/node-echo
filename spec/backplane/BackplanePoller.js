@@ -179,7 +179,7 @@ describe("BackplanePoller", function(){
 
         beforeEach(function(){
             spyOn(http,'createClient').andReturn('client return');
-            backplanePoller = BackplanePoller.spawn({},{ host: 'bus url', ssl: true});
+            backplanePoller = BackplanePoller.spawn({ host: 'bus url', ssl: true});
         });
 
         it("should create an http client",function(){

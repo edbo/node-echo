@@ -1,8 +1,7 @@
 var utils = require('utils.js');
 var events = require('events');
 var http = require('http');
-
-
+var Trait = require('traits').Trait;
 
 describe("BackplanePoller", function(){
     var BackplanePoller = require('backplane/BackplanePoller.js');
@@ -17,7 +16,8 @@ describe("BackplanePoller", function(){
             spyOn(http,'createClient').andReturn(clientSpy);
             spyOn(global,'setInterval');
             bindSpy = jasmine.createSpy().andReturn("bound function");
-            backplanePoller = BackplanePoller({interval: 100, bind: bindSpy, busName: 'bus_name', base64AuthString: 'base64AuthStringYo', host: 'host url'},{ ssl: false});
+            spyOn(utils,'TBind').andReturn(Trait({ bind:bindSpy }));
+            backplanePoller = BackplanePoller({interval: 100, busName: 'bus_name', base64AuthString: 'base64AuthStringYo', host: 'host url'},{ ssl: false});
         });
 
         it("should be an instance of EventEmitter", function(){

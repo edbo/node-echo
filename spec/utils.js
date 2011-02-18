@@ -149,7 +149,6 @@ describe("utils", function(){
         var mockObject = {
             name: 'mockName',
             caller: function(callback){
-                console.log(this);
                 callback.call(this);
             }
         };
